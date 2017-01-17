@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">ProjectPopularMovies</string>
+    <string name="app_name">Popular Movies</string>
+    <string name="search_bar_text">Type The Movie You Want To Search</string>
+    <string name="error_message">No Movies Found, Try Refresh The Page</string>
+
+<string name="movie_title">Title</string>
+    <string name="refresh_button">Refresh</string>
+    <string name="about_button">About</string>
 </resources>
