@@ -28,14 +28,14 @@ public class Networking {
     static String CUR_FILTER = PARAM_FILTER;
     //The API Key For Our Api
     final static String PARAM_API = "api_key";
-    final static String API = BuildConfig.THE_MOVIE_DB_API_TOKEN;
 
     //Build the URL with URI without Parameters
     public static URL buildUrl(){
+        final String key = BuildConfig.THE_MOVIE_DB_API_TOKEN;
         Uri buildUri = Uri.parse(DATABASE_BASE_URL).buildUpon()
                 .appendEncodedPath(PARAM_CATEGORY)
                 .appendEncodedPath(CUR_FILTER)
-                .appendQueryParameter(PARAM_API,API).build();
+                .appendQueryParameter(PARAM_API,key).build();
         URL url = null;
         try{
             url = new URL(buildUri.toString());
@@ -48,11 +48,12 @@ public class Networking {
 
     //Build the URL and Returns it with Filter
     public static URL buildUrl(String filter){
+        final String key = BuildConfig.THE_MOVIE_DB_API_TOKEN;
         CUR_FILTER = filter;
         Uri buildUri = Uri.parse(DATABASE_BASE_URL).buildUpon()
                 .appendEncodedPath(PARAM_CATEGORY)
                 .appendEncodedPath(CUR_FILTER)
-                .appendQueryParameter(PARAM_API,API).build();
+                .appendQueryParameter(PARAM_API,key).build();
         URL url = null;
         try{
             url = new URL(buildUri.toString());

@@ -24,6 +24,7 @@
         android:id="@+id/pm_loading_indicator"
         android:layout_width="@dimen/size_42"
         android:layout_height="@dimen/size_42"
+        android:layout_centerInParent="true"
         android:layout_gravity="center"
         android:visibility="invisible"
         tools:text="ProgressBar"/>
