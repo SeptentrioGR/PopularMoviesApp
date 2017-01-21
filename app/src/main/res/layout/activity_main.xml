@@ -1,15 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
 
-
-
-    <android.support.v7.widget.RecyclerView
+         <android.support.v7.widget.RecyclerView
         android:id="@+id/pm_movies"
+        android:layout_gravity="center"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </android.support.v7.widget.RecyclerView>
+        android:layout_height="match_parent"
+        >
+        </android.support.v7.widget.RecyclerView>
 
-
-</GridLayout>
+    <TextView
+        android:id="@+id/pm_error_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/size_22sp"
+        android:layout_gravity="center"
+        android:visibility="invisible"
+        android:text="@string/error_message"/>
+    <ProgressBar
+        android:id="@+id/pm_loading_indicator"
+        android:layout_width="@dimen/size_42"
+        android:layout_height="@dimen/size_42"
+        android:layout_gravity="center"
+        android:visibility="invisible"
+        tools:text="ProgressBar"/>
+</RelativeLayout>

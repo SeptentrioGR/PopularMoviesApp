@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.udacity.projectpopularmovies.SettingsActivity">
+
+    <TextView
+        android:id="@+id/movie_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/size_32sp"
+        android:text="@string/settings_activity"
+        android:ellipsize="end"
+        android:gravity="start"
+        android:paddingTop="@dimen/size_64"
+        android:paddingBottom="@dimen/size_64"
+        android:paddingEnd="@dimen/size_8"
+        android:paddingRight="@dimen/size_8"
+        android:paddingLeft="@dimen/size_32"
+        android:paddingStart="@dimen/size_32"
+        android:background="@color/Color_006699"
+        android:textColor="@color/Color_ffff"
+
+        />
+
+
+    <LinearLayout
+        android:layout_centerInParent="true"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="2"
+        >
+
+    <TextView
+        android:layout_weight="1"
+        android:textSize="@dimen/size_22sp"
+        android:layout_margin="@dimen/size_12"
+        android:layout_width="@dimen/size_0"
+        android:layout_height="wrap_content"
+        android:id="@+id/filterTextDisplay"
+        android:text="@string/FilterDisplay"
+        />
+
+        <Button
+            android:layout_weight="1"
+            android:id="@+id/filterchangebutton"
+            android:layout_width="@dimen/size_0"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/size_24"
+            android:text="@string/filter_button"
+            android:onClick="ChangeFilter"
+            />
+
+    </LinearLayout>
+
+    <Button
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/size_64"
+        android:id="@+id/button"
+        android:text="@string/back_button"
+        android:textAlignment="center"
+        android:onClick="SaveAndExit"/>
+
+
+</RelativeLayout>

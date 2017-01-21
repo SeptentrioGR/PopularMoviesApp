@@ -3,6 +3,8 @@ package com.udacity.projectpopularmovies.Utils;
 import android.net.Uri;
 import android.util.Log;
 
+import com.udacity.projectpopularmovies.BuildConfig;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -16,19 +18,23 @@ import java.util.Scanner;
 
 public class Networking {
     private static final String TAG = Networking.class.getSimpleName();
-
-    //?sort_by=popularity.desc&api_key=6e31e5b00383e8475d3da5710392f51d
-    private static final String STATIC_DB_URL = "https://api.themoviedb.org/3/discover/movie";
+    //The Basic URL For Our API
+    private static final String STATIC_DB_URL = "https://api.themoviedb.org/3";
     private static final String DATABASE_BASE_URL = STATIC_DB_URL;
-    final static String PARAM_SORT = "sort_by";
-    final static String sort_by = "popularity.desc";
-    final static String PARAM_API = "API";
-    final static String API = "6e31e5b00383e8475d3da5710392f51d";
+    //The Path of the api link
+    final static String PARAM_CATEGORY = "movie";
+    final static String PARAM_FILTER = "top_rated";
+    final static String PARAM_FILTER_2 = "top_rated";
+    static String CUR_FILTER = PARAM_FILTER;
+    //The API Key For Our Api
+    final static String PARAM_API = "api_key";
+    final static String API = BuildConfig.THE_MOVIE_DB_API_TOKEN;
 
-
+    //Build the URL with URI without Parameters
     public static URL buildUrl(){
         Uri buildUri = Uri.parse(DATABASE_BASE_URL).buildUpon()
-                .appendQueryParameter(PARAM_SORT,sort_by)
+                .appendEncodedPath(PARAM_CATEGORY)
+                .appendEncodedPath(CUR_FILTER)
                 .appendQueryParameter(PARAM_API,API).build();
         URL url = null;
         try{
@@ -36,10 +42,28 @@ public class Networking {
         }catch (MalformedURLException e){
             e.printStackTrace();
         }
-        Log.v(TAG,"Build URI" + url);
+        Log.v(TAG,"Building URI \n" + url);
         return url;
     }
 
+    //Build the URL and Returns it with Filter
+    public static URL buildUrl(String filter){
+        CUR_FILTER = filter;
+        Uri buildUri = Uri.parse(DATABASE_BASE_URL).buildUpon()
+                .appendEncodedPath(PARAM_CATEGORY)
+                .appendEncodedPath(CUR_FILTER)
+                .appendQueryParameter(PARAM_API,API).build();
+        URL url = null;
+        try{
+            url = new URL(buildUri.toString());
+        }catch (MalformedURLException e){
+            e.printStackTrace();
+        }
+        Log.v(TAG,"Building URI \n" + url);
+        return url;
+    }
+
+    //Get Response from Http with URL and get the string of JSON
     public static String getResponseFromHttpUrl(URL url) throws IOException{
         HttpURLConnection urlConnection = (HttpURLConnection)url.openConnection();
         try{

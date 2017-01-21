@@ -3,4 +3,22 @@
          (such as screen margins) for screens with more than 820dp of available width. This
          would include 7" and 10" devices in landscape (~960dp and ~1280dp respectively). -->
     <dimen name="activity_horizontal_margin">64dp</dimen>
+
+    //Movie Rating Dimentions
+    <dimen name="size_0">0dp</dimen>
+    <dimen name="size_2">2dp</dimen>
+    <dimen name="size_8">8dp</dimen>
+    <dimen name="size_12">12dp</dimen>
+    <dimen name="size_16">16dp</dimen>
+    <dimen name="size_16sp">16sp</dimen>
+    <dimen name="size_22sp">22sp</dimen>
+    <dimen name="size_22">22dp</dimen>
+    <dimen name="size_24">24dp</dimen>
+
+    //Movie Release Date Dimentions
+    <dimen name="size_32">32dp</dimen>
+    <dimen name="size_32sp">32sp</dimen>
+    <dimen name="size_42">42dp</dimen>
+    <dimen name="size_64">64dp</dimen>
+
 </resources>

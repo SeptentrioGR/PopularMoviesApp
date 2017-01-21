@@ -3,7 +3,16 @@
     <string name="search_bar_text">Type The Movie You Want To Search</string>
     <string name="error_message">No Movies Found, Try Refresh The Page</string>
 
-<string name="movie_title">Title</string>
+    <string name="movie_title">Title</string>
+
     <string name="refresh_button">Refresh</string>
     <string name="about_button">About</string>
+    <string name="settings_activity">Options</string>
+    <string name="settings_button">Options</string>
+    <string name="url_search_results">Press Search for Results</string>
+    <string name="back_button">Save and Exit</string>
+    <string name="filter_button">Change Filter</string>
+    <string name="FilterDisplay">Your movie filter: </string>
+    <string name="movie_poster">Movie Poster</string>
+    <string name="MyMovieDbApiKey"></string>
 </resources>
