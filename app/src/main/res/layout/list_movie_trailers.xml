@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:layout_margin="@dimen/size_12"
+        tools:text="TEXT NAME"
+        android:id="@+id/pm_trailer_number"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <ImageView
+        android:layout_margin="@dimen/size_12"
+        android:src="@mipmap/ic_play_trailer_icon"
+        android:id="@+id/pm_image_poster"
+        android:layout_width="@dimen/size_64"
+        android:layout_height="@dimen/size_64"
+        android:scaleType="centerCrop"
+        android:onClick="PlaySomthingButton"
+        />
+
+    <TextView
+        android:layout_margin="@dimen/size_12"
+        tools:text="TEXT NAME"
+        android:id="@+id/pm_trailer_name"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
+</LinearLayout>

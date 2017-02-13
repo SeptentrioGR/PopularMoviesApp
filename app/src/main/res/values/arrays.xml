@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="pref_filters_options">
+        <item>@string/pref_filters_label_popular</item>
+        <item>@string/pref_filters_label_top_rated</item>
+    </string-array>
+
+    <string-array name="pref_filters_values">
+        <item>@string/pref_filters_popular</item>
+        <item>@string/pref_filters_top_rated</item>
+    </string-array>
+
+
+    <string-array name="pref_image_sizes_options">
+        <item>@string/pref_image_size_label_92</item>
+        <item>@string/pref_image_size_label_154</item>
+        <item>@string/pref_image_size_label_185</item>
+        <item>@string/pref_image_size_label_342</item>
+        <item>@string/pref_image_size_label_500</item>
+        <item>@string/pref_image_size_label_780</item>
+    </string-array>
+
+    <string-array name="pref_image_sizes_values">
+        <item>@string/pref_image_size_92</item>
+        <item>@string/pref_image_size_154</item>
+        <item>@string/pref_image_size_185</item>
+        <item>@string/pref_image_size_342</item>
+        <item>@string/pref_image_size_500</item>
+        <item>@string/pref_image_size_780</item>
+    </string-array>
+
+
+    <string-array name="pref_grid_category_label">
+        <item>@string/pref_grid_size_label_one</item>
+        <item>@string/pref_grid_size_label_two</item>
+        <item>@string/pref_grid_size_label_three</item>
+    </string-array>
+
+    <string-array name="pref_grid_category_value">
+        <item>@string/pref_grid_size_one</item>
+        <item>@string/pref_grid_size_two</item>
+        <item>@string/pref_grid_size_three</item>
+    </string-array>
+
+
+</resources>
+
+
+
+

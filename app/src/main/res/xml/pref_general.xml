@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+<ListPreference
+    android:defaultValue="@string/pref_filters_popular"
+    android:entries="@array/pref_filters_options"
+    android:entryValues="@array/pref_filters_values"
+    android:key="@string/pref_filters_key"
+    android:title="@string/pref_filters_label" />
+    />
+
+
+    <ListPreference
+        android:defaultValue="@string/pref_image_size_500"
+        android:entries="@array/pref_image_sizes_options"
+        android:entryValues="@array/pref_image_sizes_values"
+        android:key="@string/pref_image_size_key"
+        android:title="@string/pref_image_label" />
+    />
+
+
+    <ListPreference
+        android:defaultValue="@string/pref_grid_size_two"
+        android:entries="@array/pref_grid_category_label"
+        android:entryValues="@array/pref_grid_category_value"
+        android:key="@string/pref_grid_colums_key"
+        android:title="@string/pref_grid_colums_label" />
+    />
+
+</PreferenceScreen>

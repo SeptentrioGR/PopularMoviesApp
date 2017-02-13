@@ -8,7 +8,7 @@ import android.widget.Toast;
  * Created by Petros on 1/18/2017.
  */
 
-public class utilities {
+public class Utilities {
     public static Toast myToast;
     //This is used to make Toast
     public static void MakeToast(Context context, String message, int length){

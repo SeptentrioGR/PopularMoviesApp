@@ -2,81 +2,128 @@ package com.udacity.projectpopularmovies;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.udacity.projectpopularmovies.Adapter.MoviesAdapter;
-import com.udacity.projectpopularmovies.Utils.Networking;
-import com.udacity.projectpopularmovies.Utils.TheMovieDVJsonUtils;
-import com.udacity.projectpopularmovies.Utils.utilities;
+import com.udacity.projectpopularmovies.Data.MovieDBSyncTask;
+import com.udacity.projectpopularmovies.Data.MoviesContract;
+import com.udacity.projectpopularmovies.Data.Preferences;
 import com.udacity.projectpopularmovies.Model.Movie;
+import com.udacity.projectpopularmovies.Utils.Utilities;
 
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-public class MainActivity extends AppCompatActivity implements MoviesAdapter.ListItemClickListener{
-    public static final String TAG = "MAIN_ACTIVITY";
-    //How Many Movies Will Be Shown in the Wierd
-    private static final int LIST_OF_MOVIES = 10;
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
+public class MainActivity extends AppCompatActivity implements
+        MoviesAdapter.ListItemClickListener,
+        LoaderManager.LoaderCallbacks<Cursor>{
+
+    public static final String TAG = MainActivity.class.getSimpleName();
+   
+    public static final String[] MAIN_MOVIE_PROJECTION = {
+            MoviesContract.MovieEntry.MOVIE_ID,
+            MoviesContract.MovieEntry.MOVIE_TITLE,
+            MoviesContract.MovieEntry.MOVIE_DESCRIPTION,
+            MoviesContract.MovieEntry.MOVIE_POPULARITY,
+            MoviesContract.MovieEntry.MOVIE_VOTE_COUNT,
+            MoviesContract.MovieEntry.MOVIE_VOTE_AVERAGE,
+            MoviesContract.MovieEntry.MOVIE_RELEASE_DATE,
+            MoviesContract.MovieEntry.MOVIE_POSTER_PATH,
+            MoviesContract.MovieEntry.MOVIE_BACKDROP_PATH,
+            MoviesContract.MovieEntry.MOVIE_RATING
+    };
+
+    public static final int INDEX_MOVIE_ID = 0;
+    public static final int INDEX_MOVIE_TITLE = 1;
+    public static final int INDEX_MOVIE_DESCRIPTION = 2;
+    public static final int INDEX_MOVIE_POPULARITY = 3;
+    public static final int INDEX_MOVIE_VOTE_COUNT = 4;
+    public static final int INDEX_MOVIE_VOTE_AVERAGE = 5;
+    public static final int INDEX_MOVIE_RELEASE_DATE = 6;
+    public static final int INDEX_MOVIE_POSTER_PATH = 7;
+    public static final int INDEX_MOVIE_BACKDROP_PATH = 8;
+    public static final int INDEX_MOVIE_RATING = 9;
+
+
+    private static final int ID_MOVIE_LOADER = 44;
+
     //The Movie Adapter That Responsible to fill our Recycle View
     private MoviesAdapter mMovieAdapter;
     //A referense to our RecyclerView
-    private RecyclerView mRecycleView;
-    //An Array of All Our Movies and their details
-    private  ArrayList<Movie> mMovieList;
+    @Bind(R.id.pm_movies)
+    RecyclerView mRecycleView;
+
+    private int mPosition = RecyclerView.NO_POSITION;
+
     //A referense to our Progress Bar
-    private ProgressBar mLoadingIndicator;
-    //A Reference to our Error Message
-    private TextView mErrorMessageDisplay;
-    //Attributes used to send the information to the Movie Activity
-    public static final String NAME = "name";
-    public static final String LOCATION = "location";
-    public static final String DESCRIPTION = "description";
-    public static final String RATING = "rating";
-    public static final String RELEASEDATE = "release_date";
+    @Bind(R.id.pm_loading_indicator)
+    ProgressBar mLoadingIndicator;
+
+    //How Many Movies Will Be Shown in the Wierd
+    private static final int LIST_OF_MOVIES = 10;
+
+
     //The Filter choosen in the settings
-    private StaggeredGridLayoutManager gaggeredGridLayoutManager;
+    private StaggeredGridLayoutManager staggeredGridLayoutManager;
     private String filterChosen;
+    private int gridsize = 2;
+
+    //An Array of All Our Movies and their details
+    ArrayList<Movie> mMovieList;
+
+    String JsonResponse;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mLoadingIndicator = (ProgressBar)findViewById(R.id.pm_loading_indicator);
-        mErrorMessageDisplay = (TextView)findViewById(R.id.pm_error_message);
-        mRecycleView = (RecyclerView)findViewById(R.id.pm_movies);
+        ButterKnife.bind(this);
+        // TODO (1) Add The Movie Data On The Database
+        MovieDBSyncTask dbSyncTask = new MovieDBSyncTask(this);
+        dbSyncTask.syncMovies();
         mRecycleView.setHasFixedSize(false);
-        //Checks if there is any filter available and sets it either wise set it to default.
-        Intent intent = getIntent();
-        if (intent.hasExtra("filter")) {
-            filterChosen = intent.getStringExtra("filter");
-
-        }else{
-            filterChosen = "popular";
-        }
+        setSharedPreferences();
         //Creates are GridLayoutManager and sets it to be to colums
-
-        gaggeredGridLayoutManager = new StaggeredGridLayoutManager(2,1);
+        staggeredGridLayoutManager = new StaggeredGridLayoutManager(gridsize,1);
 
         //Sets the LayoutManagvet to GridLayoutManager
-        mRecycleView.setLayoutManager(gaggeredGridLayoutManager);
-
+        mRecycleView.setLayoutManager(staggeredGridLayoutManager);
+        mRecycleView.setHasFixedSize(true);
         //Creates the Movie Adapter
-        mMovieAdapter = new MoviesAdapter(LIST_OF_MOVIES,this);
+        mMovieAdapter = new MoviesAdapter(this,this);
         //Set The Adapter
         mRecycleView.setAdapter(mMovieAdapter);
-        //Load The Movies which the filter we chosen
-        LoadMovieData(filterChosen);
+
+        showLoading();
+
+        getSupportLoaderManager().initLoader(ID_MOVIE_LOADER,null,this);
+
+
+    }
+
+    public void setSharedPreferences(){
+
+
+        filterChosen = Preferences.getPreferenceFilter(this);
     }
 
 
@@ -86,14 +133,58 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
         return true;
     }
 
-    public void showErrorMessage(){
-        mRecycleView.setVisibility(View.INVISIBLE);
-        mErrorMessageDisplay.setVisibility(View.VISIBLE);
+
+
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id){
+            case ID_MOVIE_LOADER:
+                Uri movieQueryUri = MoviesContract.MovieEntry.CONTENT_URI;
+                return new CursorLoader(this,
+                        movieQueryUri,
+                        MAIN_MOVIE_PROJECTION,
+                        null,
+                        null,
+                        null);
+            default:
+                throw new RuntimeException("Loader Not Impemented: " + id);
+        }
     }
 
-    public void hideErrorMessage(){
-        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mMovieAdapter.swapCursor(data);
+        if(mPosition==RecyclerView.NO_POSITION) mPosition=0;
+        mRecycleView.smoothScrollToPosition(mPosition);
+        if (data.getCount() != 0) {
+            showMovieDataView();
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader)
+    {
+        mMovieAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void onClick(long clickedItemIndex) {
+        Intent movieDetailIntent = new Intent(MainActivity.this,MovieActivity.class);
+        Uri uriForMovieClicked = MoviesContract.MovieEntry.buildMovieUriWithId(clickedItemIndex);
+        movieDetailIntent.setData(uriForMovieClicked);
+        startActivity(movieDetailIntent);
+    }
+
+    private void showMovieDataView(){
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
         mRecycleView.setVisibility(View.VISIBLE);
+    }
+
+    public void showLoading(){
+        mRecycleView.setVisibility(View.INVISIBLE);
+        mLoadingIndicator.setVisibility(View.VISIBLE);
     }
 
 
@@ -101,11 +192,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
     public boolean onOptionsItemSelected(MenuItem item) {
         int ItemSelected = item.getItemId();
 
-       if(ItemSelected == R.id.about_action){
+        if(ItemSelected == R.id.about_action){
             Context context = this;
             String Message = "Opening About Page";
             int Length = Toast.LENGTH_LONG;
-            utilities.MakeToast(context,Message,Length);
+            Utilities.MakeToast(context,Message,Length);
         }
 
         if(ItemSelected == R.id.settings_action){
@@ -117,68 +208,11 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Lis
 
         return super.onOptionsItemSelected(item);
     }
-    //This Method Is Responsible For Loading All The Movies From JSON using ASyncTask with the filter
-    public void LoadMovieData(String filter){
-        new FetchMoviesTesk().execute(filter);
-    }
-
-
-    //Fetches the Movies from The Database and add them on A Json and fills the Array with All the Movies
-    public class FetchMoviesTesk extends AsyncTask<String,Void,ArrayList<Movie>> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected ArrayList<Movie> doInBackground(String ... params) {
-            String filter = params[0];
-            URL searchUrl = Networking.buildUrl(filter);
-
-            try{
-                String jsonMovieResponse = Networking.getResponseFromHttpUrl(searchUrl);
-                 mMovieList = TheMovieDVJsonUtils.fillListFromJson(MainActivity.this,jsonMovieResponse);
-                return mMovieList;
-            }catch (Exception e){
-                e.printStackTrace();
-                return null;
-            }
-
-        }
-
-
-        @Override
-        protected void onProgressUpdate(Void... params) {
-
-            super.onProgressUpdate(params);
-        }
-
-
-        @Override
-        protected void onPostExecute(ArrayList<Movie> moviesData) {
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-
-            if(moviesData!=null){
-                hideErrorMessage();
-              mMovieAdapter.setMovieData(moviesData);
-            }else{
-                showErrorMessage();
-            }
-
-        }
-
-    }
 
     @Override
-    public void onListItemClick(int clickedItemIndex) {
-        Context context = this;
-        Intent startChildActivityIntent = new Intent(context,MovieActivity.class);
-        startChildActivityIntent.putExtra(NAME,mMovieList.get(clickedItemIndex).getmTitle());
-        startChildActivityIntent.putExtra(LOCATION,mMovieList.get(clickedItemIndex).getmImage());
-        startChildActivityIntent.putExtra(DESCRIPTION,mMovieList.get(clickedItemIndex).getmDesc());
-        startChildActivityIntent.putExtra(RATING,mMovieList.get(clickedItemIndex).getmRating());
-        startChildActivityIntent.putExtra(RELEASEDATE,mMovieList.get(clickedItemIndex).getmDate());
-        context.startActivity(startChildActivityIntent);
+    protected void onPause() {
+        super.onPause();
     }
+
+
 }

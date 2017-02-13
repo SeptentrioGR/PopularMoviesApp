@@ -15,4 +15,70 @@
     <string name="FilterDisplay">Your movie filter: </string>
     <string name="movie_poster">Movie Poster</string>
     <string name="MyMovieDbApiKey"></string>
+
+
+    <!-- - - - - - - - - - - -->
+    <!-- Used by Preferences -->
+    <!-- - - - - - - - - - - -->
+
+
+    <!-- key for filter preferences -->
+    <string name="pref_filters_label">Filter List by</string>
+
+    <!-- label for filter preferences -->
+    <string name="pref_filters_key" translatable="false">filter</string>
+
+    <!-- label for Popular filter preferences -->
+    <string name="pref_filters_label_popular">Popular</string>
+
+    <!-- label for Top Rated filter preferences -->
+    <string name="pref_filters_label_top_rated">Top Rated</string>
+
+    <!-- Key for Popular filter preferences -->
+    <string name="pref_filters_popular">popular</string>
+
+    <!-- Key for Top Rated filter preferences -->
+    <string name="pref_filters_top_rated" translatable="false">top_rated </string>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <!-- key for image size preferences -->
+    <string name="pref_image_label">Posters Size</string>
+
+    <!-- label for image size preferences -->
+    <string name="pref_image_size_key" translatable="false">poster_size</string>
+
+    <string name="pref_image_size_label_92">92</string>
+    <string name="pref_image_size_label_154">154</string>
+    <string name="pref_image_size_label_185">185</string>
+    <string name="pref_image_size_label_342">342</string>
+    <string name="pref_image_size_label_500">500</string>
+    <string name="pref_image_size_label_780">780</string>
+
+
+    <string name="pref_image_size_92" translatable="false">w92</string>
+    <string name="pref_image_size_154" translatable="false">w154</string>
+    <string name="pref_image_size_185" translatable="false">w185</string>
+    <string name="pref_image_size_342" translatable="false">w342</string>
+    <string name="pref_image_size_500" translatable="false">w500</string>
+    <string name="pref_image_size_780" translatable="false">w780</string>
+
+
+    <string name="pref_grid_colums_label">Grid Size</string>
+
+    <string name="pref_grid_colums_key">grid_size</string>
+
+    <string name="pref_grid_size_label_one">Single</string>
+    <string name="pref_grid_size_label_two">Two Columns</string>
+    <string name="pref_grid_size_label_three">Three Columns</string>
+
+    <string name="pref_grid_size_one">1</string>
+    <string name="pref_grid_size_two">2</string>
+    <string name="pref_grid_size_three">3</string>
+
+
+    //Used in Movie Layout
+    <string name="movie_trailer_text_display">TRAILERS</string>
+    <string name="movie_review_text_display">REVIEWS</string>
+    <string name="movie_review_text_not_found">No Reviews For This Movie</string>
+    <string name="movie_videos_text_not_found">No Trailers For This Movie</string>
 </resources>

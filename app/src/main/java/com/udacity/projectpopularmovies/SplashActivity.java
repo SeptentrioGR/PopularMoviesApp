@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private int waitForSeconds = 2500;
+    private int waitForSeconds = 0;
     ProgressBar mLoadingIndicator;
     boolean myBoolean;
     @Override

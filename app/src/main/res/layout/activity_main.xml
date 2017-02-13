@@ -6,7 +6,6 @@
 
          <android.support.v7.widget.RecyclerView
         android:id="@+id/pm_movies"
-        android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
@@ -20,6 +19,7 @@
         android:layout_gravity="center"
         android:visibility="invisible"
         android:text="@string/error_message"/>
+
     <ProgressBar
         android:id="@+id/pm_loading_indicator"
         android:layout_width="@dimen/size_42"
@@ -28,4 +28,5 @@
         android:layout_gravity="center"
         android:visibility="invisible"
         tools:text="ProgressBar"/>
+
 </RelativeLayout>
