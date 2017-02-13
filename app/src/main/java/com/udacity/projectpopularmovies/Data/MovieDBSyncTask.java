@@ -56,6 +56,7 @@ public class MovieDBSyncTask {
                 String JsonResponse = Networking.getResponseFromHttpUrl(myJasonURL);
                 ContentValues[] movieValues = TheMovieDVJsonUtils.getMovieContentValuesFromJson(mContext, JsonResponse);
                 return movieValues;
+
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
@@ -64,10 +65,15 @@ public class MovieDBSyncTask {
 
         @Override
         protected void onPostExecute(ContentValues[] contentValues) {
+            if(contentValues!=null) {
+                movieValues = contentValues;
+                mContext.getContentResolver().bulkInsert(MoviesContract.MovieEntry.CONTENT_URI,
+                        contentValues);
+            }else {
 
-            movieValues = contentValues;
-            mContext.getContentResolver().bulkInsert(MoviesContract.MovieEntry.CONTENT_URI,
-                    contentValues);
+                return;
+            }
+
             super.onPostExecute(movieValues);
         }
     }

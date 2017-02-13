@@ -154,11 +154,15 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mMovieAdapter.swapCursor(data);
-        if(mPosition==RecyclerView.NO_POSITION) mPosition=0;
-        mRecycleView.smoothScrollToPosition(mPosition);
-        if (data.getCount() != 0) {
-            showMovieDataView();
+        if(data!=null) {
+            mMovieAdapter.swapCursor(data);
+            if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+            mRecycleView.smoothScrollToPosition(mPosition);
+            if (data.getCount() != 0) {
+                showMovieDataView();
+            }
+        }else{
+            showLoading();
         }
 
     }
