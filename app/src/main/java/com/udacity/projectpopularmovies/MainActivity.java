@@ -3,6 +3,7 @@ package com.udacity.projectpopularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +13,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +22,8 @@ import android.widget.Toast;
 
 import com.udacity.projectpopularmovies.Adapter.MoviesAdapter;
 import com.udacity.projectpopularmovies.Data.MovieDBSyncTask;
+import com.udacity.projectpopularmovies.Data.MovieDbHelper;
+import com.udacity.projectpopularmovies.Data.MovieProvider;
 import com.udacity.projectpopularmovies.Data.MoviesContract;
 import com.udacity.projectpopularmovies.Data.Preferences;
 import com.udacity.projectpopularmovies.Model.Movie;
@@ -28,6 +32,7 @@ import com.udacity.projectpopularmovies.Utils.Utilities;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,10 +41,9 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements
         MoviesAdapter.ListItemClickListener,
-        LoaderManager.LoaderCallbacks<Cursor>{
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String TAG = MainActivity.class.getSimpleName();
-   
     public static final String[] MAIN_MOVIE_PROJECTION = {
             MoviesContract.MovieEntry.MOVIE_ID,
             MoviesContract.MovieEntry.MOVIE_TITLE,
@@ -63,16 +67,15 @@ public class MainActivity extends AppCompatActivity implements
     public static final int INDEX_MOVIE_POSTER_PATH = 7;
     public static final int INDEX_MOVIE_BACKDROP_PATH = 8;
     public static final int INDEX_MOVIE_RATING = 9;
-
-
     private static final int ID_MOVIE_LOADER = 44;
-
+    public static HashMap<String, Movie> myFavoriteMovies = new HashMap<>();
     //The Movie Adapter That Responsible to fill our Recycle View
     private MoviesAdapter mMovieAdapter;
     //A referense to our RecyclerView
     @Bind(R.id.pm_movies)
     RecyclerView mRecycleView;
-
+    private SQLiteDatabase sqLiteDatabase;
+    private MovieDbHelper movieDbHelper;
     private int mPosition = RecyclerView.NO_POSITION;
 
     //A referense to our Progress Bar
@@ -92,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements
     ArrayList<Movie> mMovieList;
 
     String JsonResponse;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,24 +107,24 @@ public class MainActivity extends AppCompatActivity implements
         mRecycleView.setHasFixedSize(false);
         setSharedPreferences();
         //Creates are GridLayoutManager and sets it to be to colums
-        staggeredGridLayoutManager = new StaggeredGridLayoutManager(gridsize,1);
+        staggeredGridLayoutManager = new StaggeredGridLayoutManager(gridsize, 1);
 
         //Sets the LayoutManagvet to GridLayoutManager
         mRecycleView.setLayoutManager(staggeredGridLayoutManager);
         mRecycleView.setHasFixedSize(true);
         //Creates the Movie Adapter
-        mMovieAdapter = new MoviesAdapter(this,this);
+        mMovieAdapter = new MoviesAdapter(this, this);
         //Set The Adapter
         mRecycleView.setAdapter(mMovieAdapter);
 
         showLoading();
 
-        getSupportLoaderManager().initLoader(ID_MOVIE_LOADER,null,this);
+        getSupportLoaderManager().initLoader(ID_MOVIE_LOADER, null, this);
 
 
     }
 
-    public void setSharedPreferences(){
+    public void setSharedPreferences() {
 
 
         filterChosen = Preferences.getPreferenceFilter(this);
@@ -129,16 +133,14 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu,menu);
+        getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
 
 
-
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id){
+        switch (id) {
             case ID_MOVIE_LOADER:
                 Uri movieQueryUri = MoviesContract.MovieEntry.CONTENT_URI;
                 return new CursorLoader(this,
@@ -154,39 +156,70 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if(data!=null) {
-            mMovieAdapter.swapCursor(data);
+        if (data != null) {
+            String[] favoriteId = {
+                    "135397",
+                    "14564",
+                    "328111"
+            };
+            for (int i = 0; i < myFavoriteMovies.size(); i++) {
+                if (myFavoriteMovies.containsKey(data.getString(INDEX_MOVIE_ID))) {
+                    favoriteId[i] = data.getString(INDEX_MOVIE_ID);
+                }
+            }
+            Cursor newData = null;
+            for (int i = 0; i < favoriteId.length; i++) {
+                newData = getContentResolver().query(
+                        MoviesContract.MovieEntry.CONTENT_URI,
+                        MAIN_MOVIE_PROJECTION,
+                        MoviesContract.MovieEntry.MOVIE_ID + "=" + favoriteId[i],
+                        null,
+                        null,
+                        null);
+
+            }
+            int index = newData.getColumnIndex(MoviesContract.MovieEntry.MOVIE_TITLE);
+            if (newData != null) {
+                while (newData.moveToNext()) {
+                    String newWord = newData.getString(index);
+                    Log.i(TAG, newWord);
+                }
+            } else {
+
+            }
+
+            mMovieAdapter.swapCursor(newData);
             if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+
             mRecycleView.smoothScrollToPosition(mPosition);
             if (data.getCount() != 0) {
                 showMovieDataView();
             }
-        }else{
+        } else {
             showLoading();
         }
 
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader)
-    {
+    public void onLoaderReset(Loader<Cursor> loader) {
         mMovieAdapter.swapCursor(null);
     }
 
     @Override
     public void onClick(long clickedItemIndex) {
-        Intent movieDetailIntent = new Intent(MainActivity.this,MovieActivity.class);
+        Intent movieDetailIntent = new Intent(MainActivity.this, MovieActivity.class);
         Uri uriForMovieClicked = MoviesContract.MovieEntry.buildMovieUriWithId(clickedItemIndex);
         movieDetailIntent.setData(uriForMovieClicked);
         startActivity(movieDetailIntent);
     }
 
-    private void showMovieDataView(){
+    private void showMovieDataView() {
         mLoadingIndicator.setVisibility(View.INVISIBLE);
         mRecycleView.setVisibility(View.VISIBLE);
     }
 
-    public void showLoading(){
+    public void showLoading() {
         mRecycleView.setVisibility(View.INVISIBLE);
         mLoadingIndicator.setVisibility(View.VISIBLE);
     }
@@ -196,17 +229,17 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         int ItemSelected = item.getItemId();
 
-        if(ItemSelected == R.id.about_action){
+        if (ItemSelected == R.id.about_action) {
             Context context = this;
             String Message = "Opening About Page";
             int Length = Toast.LENGTH_LONG;
-            Utilities.MakeToast(context,Message,Length);
+            Utilities.MakeToast(context, Message, Length);
         }
 
-        if(ItemSelected == R.id.settings_action){
+        if (ItemSelected == R.id.settings_action) {
             Context context = this;
-            Intent startOptionsActivity = new Intent(context,SettingsActivity.class);
-            startOptionsActivity.putExtra("filter",filterChosen);
+            Intent startOptionsActivity = new Intent(context, SettingsActivity.class);
+            startOptionsActivity.putExtra("filter", filterChosen);
             context.startActivity(startOptionsActivity);
         }
 
@@ -216,6 +249,30 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onPause() {
         super.onPause();
+    }
+
+
+    public static void AddToFavorite(Context context, Movie movie) {
+        if (myFavoriteMovies.containsKey("" + movie.getId())) {
+            Toast.makeText(context, "Already In Your Favorite", Toast.LENGTH_LONG).show();
+            return;
+        }
+        Toast.makeText(context, "added to Your Favorite", Toast.LENGTH_LONG).show();
+        myFavoriteMovies.put("" + movie.getId(), movie);
+    }
+
+    public static void RemoveFromFavorite(Context context, Movie movie) {
+        if (myFavoriteMovies.containsKey("" + movie.getId())) {
+            Toast.makeText(context, "Removed From Your Favorite", Toast.LENGTH_LONG).show();
+        }
+        return;
+    }
+
+    public static boolean CheckFavoriteMovie(Context context, Movie movie) {
+        if (myFavoriteMovies.containsKey(movie.getId().toString())) {
+            return true;
+        }
+        return false;
     }
 
 

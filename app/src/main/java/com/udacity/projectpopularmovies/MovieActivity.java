@@ -30,6 +30,7 @@ import com.udacity.projectpopularmovies.Adapter.VideoAdapter;
 import com.udacity.projectpopularmovies.Data.MoviesContract;
 import com.udacity.projectpopularmovies.Data.ReviewProvider;
 import com.udacity.projectpopularmovies.Data.TrailerProvider;
+import com.udacity.projectpopularmovies.Model.Movie;
 import com.udacity.projectpopularmovies.Model.Review;
 import com.udacity.projectpopularmovies.Model.Video;
 import com.udacity.projectpopularmovies.Utils.Networking;
@@ -42,6 +43,11 @@ import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+
+import static com.udacity.projectpopularmovies.MainActivity.AddToFavorite;
+import static com.udacity.projectpopularmovies.MainActivity.CheckFavoriteMovie;
+import static com.udacity.projectpopularmovies.MainActivity.RemoveFromFavorite;
+import static com.udacity.projectpopularmovies.MainActivity.myFavoriteMovies;
 
 public class MovieActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>{
@@ -176,11 +182,12 @@ public class MovieActivity extends AppCompatActivity implements
             Log.e(TAG, "Cursror has not valid data");
         }
         if (data.getCount() != 0) {
-
+            mCursor = data;
             final String id = data.getString(INDEX_MOVIE_ID);
             final String title = data.getString(INDEX_MOVIE_TITLE);
             loadReviews(id);
             loadVideos(id);
+
             mMovieTitle.setText(title);
 
             final String description = data.getString(INDEX_MOVIE_DESCRIPTION);
@@ -198,7 +205,6 @@ public class MovieActivity extends AppCompatActivity implements
             final String movie_favored = "FALSE";
             Log.i(TAG,movie_favored);
 
-
             final String poster_path = data.getString(INDEX_MOVIE_POSTER_PATH);
             Picasso.with(this).load("https://image.tmdb.org/t/p/w500" + poster_path).into(mMoviePoster);
 
@@ -209,20 +215,12 @@ public class MovieActivity extends AppCompatActivity implements
 
             mMovieSummary = String.format("%s - %s - %s  - %s - %s - %s - %s - %s -%s",
                     title, description, popularity, vote_count, vote_average, movie_favored, poster_path, backdrop_path, rating);
-            updateFavoriteButton(id);
+            updateFavoriteButton(cursorToMovie(mCursor));
             mFavoriteMovieButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     try {
-                        if(favorite){
-                            updateFavoriteButton(id);
-                            Utilities.MakeToast(mContext,"You Un-Favorite this Movie ",Toast.LENGTH_SHORT);
-                        }else{
-                            Utilities.MakeToast(mContext,"You  Favorite this Movie",Toast.LENGTH_SHORT);
-                            updateFavoriteButton(id);
-                        }
-                        Log.i(TAG,"Clicked turned favorite to" + favorite);
-
+                        updateFavoriteButton(cursorToMovie(mCursor));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -231,21 +229,30 @@ public class MovieActivity extends AppCompatActivity implements
             });
         }
     }
+    public Movie cursorToMovie(Cursor cursor){
+        Movie movie = new Movie();
+        movie.setId(Long.parseLong(cursor.getString(0)));
+        movie.setmTitle(cursor.getString(1));
+        movie.setmDesc(cursor.getString(2));
+        movie.setmDesc(cursor.getString(3));
+        movie.setmPopularity(cursor.getString(4));
+        movie.setmVoteCount(cursor.getString(5));
+        movie.setmVoteAverage(cursor.getString(6));
+        movie.setmDate(cursor.getString(7));
+        movie.setmImage(cursor.getString(8));
+        movie.setmBackdropPath(cursor.getString(9));
+        return movie;
+    };
 
-    public void updateFavoriteButton(String id){
-        if(favorites.get(id) !=null){
+    public void updateFavoriteButton(Movie Movie){
+        if(CheckFavoriteMovie(mContext,Movie)){
             Log.i(TAG,"IT HAS THE KEY");
-            favorite =  favorites.get(id);
-            if(favorite){
-                mFavoriteMovieButton.setBackground(getResources().getDrawable(R.drawable.no_favorite_movie));
-                favorites.put(id,false);
-            }else{
-                mFavoriteMovieButton.setBackground(getResources().getDrawable(R.drawable.favorite_movie));
-                favorites.put(id,true);
-            }
+            RemoveFromFavorite(mContext,Movie);
+            mFavoriteMovieButton.setBackground(getResources().getDrawable(R.drawable.favorite_movie));
         }else{
             Log.i(TAG,"IT HAS NO KEY");
-            favorites.put(id,false);
+            AddToFavorite(mContext,Movie);
+            mFavoriteMovieButton.setBackground(getResources().getDrawable(R.drawable.no_favorite_movie));
         }
     }
 

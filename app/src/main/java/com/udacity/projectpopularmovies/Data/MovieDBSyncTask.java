@@ -24,9 +24,9 @@ import java.util.ArrayList;
 
 public class MovieDBSyncTask {
     public static final String TAG = MovieDBSyncTask.class.getSimpleName();
-    ContentValues[] movieValues = null;
+    private ContentValues[] movieValues = null;
     private String filterChosen;
-    Context mContext;
+    private Context mContext;
 
     public MovieDBSyncTask(Context conext) {
         mContext = conext;

@@ -15,6 +15,7 @@ import com.udacity.projectpopularmovies.Data.MoviesContract;
 import com.udacity.projectpopularmovies.Model.Movie;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.udacity.projectpopularmovies.Data.MoviesContract.MovieEntry.TABLE_NAME;
 
@@ -30,6 +31,8 @@ public class MovieProvider extends ContentProvider {
 
     static UriMatcher uriMatcher = buildUriMatcher();
     MovieDbHelper movieDbHelper;
+    private String[] allColumns = {MoviesContract.MovieEntry.MOVIE_ID, MoviesContract.MovieEntry.MOVIE_TITLE
+    };
 
     public static UriMatcher buildUriMatcher() {
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -147,13 +150,13 @@ public class MovieProvider extends ContentProvider {
                 String id = uri.getPathSegments().get(1);
                 movieDetailUpdated =
                         movieDbHelper.getWritableDatabase().update(TABLE_NAME,
-                        values,"MOVIE_ID=?", new String[] {String.valueOf(id)});
+                                values, "MOVIE_ID=?", new String[]{String.valueOf(id)});
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-        if(movieDetailUpdated != 0 ){
-            getContext().getContentResolver().notifyChange(uri,null);
+        if (movieDetailUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
         }
         return movieDetailUpdated;
     }
@@ -167,6 +170,39 @@ public class MovieProvider extends ContentProvider {
     @Override
     public String getType(@NonNull Uri uri) {
         throw new RuntimeException("We are not implementing getType in Sunshine.");
+    }
+
+    public List<Movie> getAllMovies() {
+        List<Movie> Movies = new ArrayList<Movie>();
+        final SQLiteDatabase database = movieDbHelper.getWritableDatabase();
+        Cursor cursor = database.query(MoviesContract.MovieEntry.TABLE_NAME,
+                allColumns, null, null, null, null, null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            Movie movie = cursrorToMovie(cursor);
+            Movies.add(movie);
+            cursor.moveToNext();
+        }
+        // make sure to close the cursor
+        cursor.close();
+        return Movies;
+    }
+
+    private Movie cursrorToMovie(Cursor cursor) {
+        Movie movie = new Movie();
+        movie.setId(Long.parseLong(cursor.getString(0)));
+        movie.setmTitle(cursor.getString(1));
+        movie.setmDesc(cursor.getString(2));
+        movie.setmDesc(cursor.getString(3));
+        movie.setmPopularity(cursor.getString(4));
+        movie.setmVoteCount(cursor.getString(5));
+        movie.setmVoteAverage(cursor.getString(6));
+        movie.setmDate(cursor.getString(7));
+        movie.setmImage(cursor.getString(8));
+        movie.setmBackdropPath(cursor.getString(9));
+        movie.setmRating(cursor.getString(10));
+        return movie;
     }
 }
 
