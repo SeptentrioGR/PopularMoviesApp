@@ -9,16 +9,31 @@ import android.os.Parcelable;
 
 public class Movie implements Parcelable {
 
-    public Long id;
+    private int id;
     private String mTitle;
     private String mDesc;
     private String mPopularity;
     private String mVoteCount;
-    public String mVoteAverage;
+    private String mVoteAverage;
     private String mDate;
     private String mImage;
     private String mBackdropPath;
-    private String mRating;
+    private String mFavorited;
+
+    public Movie(int id, String mTitle, String mDesc, String mPopularity, String mVoteCount, String mVoteAverage, String mDate, String mImage, String mBackdropPath, String mFavorited) {
+        this.id = id;
+        this.mTitle = mTitle;
+        this.mDesc = mDesc;
+        this.mPopularity = mPopularity;
+        this.mVoteCount = mVoteCount;
+        this.mVoteAverage = mVoteAverage;
+        this.mDate = mDate;
+        this.mImage = mImage;
+        this.mBackdropPath = mBackdropPath;
+        this.mFavorited = mFavorited;
+    }
+
+    public Movie(){}
 
     public String getmPopularity() {
         return mPopularity;
@@ -52,15 +67,11 @@ public class Movie implements Parcelable {
         this.mBackdropPath = mBackdropPath;
     }
 
-    public Movie() {
-
-    }
-
-    public Long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -88,14 +99,6 @@ public class Movie implements Parcelable {
         this.mDesc = mDesc;
     }
 
-    public String getmRating() {
-        return mRating;
-    }
-
-    public void setmRating(String mRating) {
-        this.mRating = mRating;
-    }
-
     public String getmDate() {
         return mDate;
     }
@@ -113,7 +116,7 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(this.id);
+        dest.writeInt(this.id);
         dest.writeString(this.mTitle);
         dest.writeString(this.mDesc);
         dest.writeString(this.mPopularity);
@@ -122,9 +125,6 @@ public class Movie implements Parcelable {
         dest.writeString(this.mDate);
         dest.writeString(this.mImage);
         dest.writeString(this.mBackdropPath);
-        dest.writeString(this.mRating);
-
-
     }
 
     public static final Parcelable.Creator<Movie> CREATOR
@@ -140,7 +140,7 @@ public class Movie implements Parcelable {
     };
 
     private Movie(Parcel in) {
-        this.id = in.readLong();
+        this.id = in.readInt();
         this.mTitle = in.readString();
         this.mDesc = in.readString();
         this.mPopularity = in.readString();
@@ -149,7 +149,5 @@ public class Movie implements Parcelable {
         this.mDate = in.readString();
         this.mImage = in.readString();
         this.mBackdropPath = in.readString();
-        this.mRating = in.readString();
-
     }
 }

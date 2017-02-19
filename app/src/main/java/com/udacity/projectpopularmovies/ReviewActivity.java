@@ -22,12 +22,10 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class ReviewActivity extends AppCompatActivity {
-    final String TAG = MovieActivity.class.getSimpleName();
-
+    private final String TAG = MovieActivity.class.getSimpleName();
     @Bind(R.id.pm_review_list)
     RecyclerView mReviewList;
     private ReviewAdapter mReviewAdapter;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +43,6 @@ public class ReviewActivity extends AppCompatActivity {
 
         new RetrieveReviewDataTask().execute(id);
     }
-
 
     class RetrieveReviewDataTask extends AsyncTask<String,Void,ArrayList<Review>> {
 
@@ -70,8 +67,6 @@ public class ReviewActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(  ArrayList<Review> bool) {
-            //Log.i(TAG,"LOADING COMPLETED" + mReviewArray.size());
-
             super.onPostExecute(bool);
         }
     }

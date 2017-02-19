@@ -28,7 +28,7 @@ public class Networking {
     private static final String DATABASE_BASE_URL = STATIC_DB_URL;
     //The Path of the api link
     final static String PARAM_CATEGORY = "movie";
-    final static String PARAM_FILTER = "top_rated";
+    final static String PARAM_FILTER = "popular";
     static String CUR_FILTER = PARAM_FILTER;
     //The API Key For Our Api
     final static String PARAM_API = "api_key";
@@ -41,7 +41,7 @@ public class Networking {
     //Build the URL and Returns it with Filter
     public static URL buildUrl(String filter) {
         final String key = BuildConfig.THE_MOVIE_DB_API_TOKEN;
-        CUR_FILTER = filter;
+        CUR_FILTER = "popular";
         //https://api.themoviedb.org/3 + movie + popular
         Uri buildUri = Uri.parse(DATABASE_BASE_URL).buildUpon()
                 .appendEncodedPath(PARAM_CATEGORY)

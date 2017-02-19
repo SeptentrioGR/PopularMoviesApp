@@ -12,6 +12,7 @@
         android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/Top_Movie_Detail_Layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/Color_006699"

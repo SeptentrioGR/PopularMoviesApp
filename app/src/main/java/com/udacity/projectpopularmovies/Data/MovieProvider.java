@@ -3,19 +3,20 @@ package com.udacity.projectpopularmovies.Data;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.udacity.projectpopularmovies.Data.MoviesContract;
 import com.udacity.projectpopularmovies.Model.Movie;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.udacity.projectpopularmovies.Data.MoviesContract.MovieEntry.TABLE_NAME;
 
@@ -24,35 +25,28 @@ import static com.udacity.projectpopularmovies.Data.MoviesContract.MovieEntry.TA
  */
 
 public class MovieProvider extends ContentProvider {
-
-
-    private static final int CODE_MOVIES = 100;
-    private static final int CODE_MOVIES_WITH_ID = 101;
-
+    public static final int CODE_MOVIES = 100;
+    public static final int CODE_MOVIES_WITH_ID = 101;
     static UriMatcher uriMatcher = buildUriMatcher();
     MovieDbHelper movieDbHelper;
-    private String[] allColumns = {MoviesContract.MovieEntry.MOVIE_ID, MoviesContract.MovieEntry.MOVIE_TITLE
-    };
-
     public static UriMatcher buildUriMatcher() {
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES, CODE_MOVIES);
-        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/*", CODE_MOVIES_WITH_ID);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/#", CODE_MOVIES_WITH_ID);
         return uriMatcher;
     }
-
-
     @Override
     public boolean onCreate() {
-        movieDbHelper = new MovieDbHelper(getContext());
+        Context context = getContext();
+        movieDbHelper = new MovieDbHelper(context);
         return true;
     }
-
     @Nullable
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Cursor cursor;
         int match = uriMatcher.match(uri);
+        Log.i("MovieProvider:Query", "" + uriMatcher.match(uri));
         switch (match) {
             case CODE_MOVIES: {
                 cursor = movieDbHelper.getReadableDatabase().query(
@@ -149,8 +143,11 @@ public class MovieProvider extends ContentProvider {
             case CODE_MOVIES_WITH_ID:
                 String id = uri.getPathSegments().get(1);
                 movieDetailUpdated =
-                        movieDbHelper.getWritableDatabase().update(TABLE_NAME,
-                                values, "MOVIE_ID=?", new String[]{String.valueOf(id)});
+                        movieDbHelper.getWritableDatabase().update(
+                                MoviesContract.MovieEntry.TABLE_NAME,
+                                values,
+                                selection,
+                                selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -170,39 +167,6 @@ public class MovieProvider extends ContentProvider {
     @Override
     public String getType(@NonNull Uri uri) {
         throw new RuntimeException("We are not implementing getType in Sunshine.");
-    }
-
-    public List<Movie> getAllMovies() {
-        List<Movie> Movies = new ArrayList<Movie>();
-        final SQLiteDatabase database = movieDbHelper.getWritableDatabase();
-        Cursor cursor = database.query(MoviesContract.MovieEntry.TABLE_NAME,
-                allColumns, null, null, null, null, null);
-
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            Movie movie = cursrorToMovie(cursor);
-            Movies.add(movie);
-            cursor.moveToNext();
-        }
-        // make sure to close the cursor
-        cursor.close();
-        return Movies;
-    }
-
-    private Movie cursrorToMovie(Cursor cursor) {
-        Movie movie = new Movie();
-        movie.setId(Long.parseLong(cursor.getString(0)));
-        movie.setmTitle(cursor.getString(1));
-        movie.setmDesc(cursor.getString(2));
-        movie.setmDesc(cursor.getString(3));
-        movie.setmPopularity(cursor.getString(4));
-        movie.setmVoteCount(cursor.getString(5));
-        movie.setmVoteAverage(cursor.getString(6));
-        movie.setmDate(cursor.getString(7));
-        movie.setmImage(cursor.getString(8));
-        movie.setmBackdropPath(cursor.getString(9));
-        movie.setmRating(cursor.getString(10));
-        return movie;
     }
 }
 

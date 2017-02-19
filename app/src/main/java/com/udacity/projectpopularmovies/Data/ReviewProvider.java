@@ -46,8 +46,6 @@ public class ReviewProvider {
         protected void onPostExecute(ArrayList<Review> reviewArrayList) {
             if (reviewArrayList != null && reviewArrayList.size() != 0) {
                 mReviews = reviewArrayList;
-
-
             }
         }
     }

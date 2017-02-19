@@ -13,14 +13,12 @@ import com.udacity.projectpopularmovies.R;
 
 public class Preferences {
 
-
     public static String getPreferenceFilter(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String keyForFilter = context.getString(R.string.pref_filters_key);
         String defultFilter = context.getString(R.string.pref_filters_popular);
         return preferences.getString(keyForFilter, defultFilter);
     }
-
 
     public static String getPreferenceImageSize(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);

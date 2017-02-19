@@ -2,9 +2,12 @@ package com.udacity.projectpopularmovies.Utils;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Parcel;
 import android.util.Log;
 
+import com.udacity.projectpopularmovies.Data.MovieDBSyncTask;
+import com.udacity.projectpopularmovies.Data.MovieDbHelper;
 import com.udacity.projectpopularmovies.Data.MoviesContract;
 import com.udacity.projectpopularmovies.Model.Movie;
 import com.udacity.projectpopularmovies.Model.Review;
@@ -95,16 +98,16 @@ public class TheMovieDVJsonUtils {
         final String RELEASEDATE = "release_date";
         final String POSTER = "poster_path";
         final String BACKDROP = "backdrop_path";
-        final String RATING = "vote_average";
         String[] parsedMovieData;
         JSONObject moveiesJson = new JSONObject(moveJsonStr);
         JSONArray moviesArray = moveiesJson.getJSONArray(RESULTS);
         parsedMovieData = new String[moviesArray.length()];
         ContentValues[] movieContentValues = new ContentValues[moviesArray.length()];
+
         for (int i = 0; i < parsedMovieData.length; i++) {
             JSONObject movie = moviesArray.getJSONObject(i);
             ContentValues movieValue = new ContentValues();
-            movieValue.put(MoviesContract.MovieEntry.MOVIE_ID, movie.getInt(ID));
+            movieValue.put(MoviesContract.MovieEntry.MOVIE_ID, movie.getString(ID));
             movieValue.put(MoviesContract.MovieEntry.MOVIE_TITLE, movie.getString(TITLE));
             movieValue.put(MoviesContract.MovieEntry.MOVIE_DESCRIPTION, movie.getString(DESCRIPTION));
             movieValue.put(MoviesContract.MovieEntry.MOVIE_POPULARITY, movie.getString(POPULARITY));
@@ -113,7 +116,6 @@ public class TheMovieDVJsonUtils {
             movieValue.put(MoviesContract.MovieEntry.MOVIE_RELEASE_DATE, movie.getString(RELEASEDATE));
             movieValue.put(MoviesContract.MovieEntry.MOVIE_POSTER_PATH, movie.getString(POSTER));
             movieValue.put(MoviesContract.MovieEntry.MOVIE_BACKDROP_PATH, movie.getString(BACKDROP));
-            movieValue.put(MoviesContract.MovieEntry.MOVIE_RATING, movie.getString(RATING));
             movieContentValues[i] = movieValue;
         }
         return movieContentValues;

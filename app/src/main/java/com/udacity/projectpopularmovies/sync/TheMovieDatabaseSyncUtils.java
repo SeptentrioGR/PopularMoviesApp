@@ -1,29 +1,40 @@
-package com.udacity.projectpopularmovies.Data;
+package com.udacity.projectpopularmovies.sync;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
+
+import com.udacity.projectpopularmovies.Data.MoviesContract;
+import com.udacity.projectpopularmovies.Data.Preferences;
 import com.udacity.projectpopularmovies.Utils.Networking;
 import com.udacity.projectpopularmovies.Utils.TheMovieDVJsonUtils;
+
 import java.net.URL;
 
-public class MovieDBSyncTask {
-    public static final String TAG = MovieDBSyncTask.class.getSimpleName();
+
+/**
+ * Created by Petros on 2/19/2017.
+ */
+
+public class TheMovieDatabaseSyncUtils {
+
+    public static final String TAG = TheMovieDatabaseSyncUtils.class.getSimpleName();
     //An Array of All Our Movies and their details
     ContentValues[] movieValues = null;
     private String filterChosen;
     Context mContext;
 
-    public MovieDBSyncTask(Context conext) {
+    public TheMovieDatabaseSyncUtils(Context conext) {
         mContext = conext;
     }
 
     public void syncMovies() {
-        new RetrieveMovieDataTask().execute();
+        new TheMovieDatabaseSyncUtils.RetrieveMovieDataTask().execute();
         try {
             if (movieValues != null && movieValues.length != 0) {
                 ContentResolver popularmoviesContentRevolver = mContext.getContentResolver();
-                //popularmoviesContentRevolver.delete(MoviesContract.MovieEntry.CONTENT_URI, null, null);
+                popularmoviesContentRevolver.delete(MoviesContract.MovieEntry.CONTENT_URI, null, null);
                 popularmoviesContentRevolver.bulkInsert(MoviesContract.MovieEntry.CONTENT_URI
                         , movieValues);
             }

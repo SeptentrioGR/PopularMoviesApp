@@ -33,12 +33,14 @@
 
     <!-- label for Top Rated filter preferences -->
     <string name="pref_filters_label_top_rated">Top Rated</string>
+    <string name="pref_filters_label_Favorite">Favorites</string>
 
     <!-- Key for Popular filter preferences -->
     <string name="pref_filters_popular">popular</string>
-
     <!-- Key for Top Rated filter preferences -->
     <string name="pref_filters_top_rated" translatable="false">top_rated </string>
+    <!-- Key for Favorite filter preferences -->
+    <string name="pref_filters_favorites" translatable="false">favorites </string>
 
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     <!-- key for image size preferences -->

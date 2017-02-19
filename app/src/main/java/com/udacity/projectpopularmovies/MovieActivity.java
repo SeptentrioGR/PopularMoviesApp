@@ -3,6 +3,10 @@ package com.udacity.projectpopularmovies;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.LoaderManager;
@@ -23,6 +27,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.squareup.picasso.Picasso;
 import com.udacity.projectpopularmovies.Adapter.MoviesAdapter;
 import com.udacity.projectpopularmovies.Adapter.ReviewAdapter;
@@ -37,17 +43,14 @@ import com.udacity.projectpopularmovies.Utils.Networking;
 import com.udacity.projectpopularmovies.Utils.TheMovieDVJsonUtils;
 import com.udacity.projectpopularmovies.Utils.Utilities;
 
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-
-import static com.udacity.projectpopularmovies.MainActivity.AddToFavorite;
-import static com.udacity.projectpopularmovies.MainActivity.CheckFavoriteMovie;
-import static com.udacity.projectpopularmovies.MainActivity.RemoveFromFavorite;
-import static com.udacity.projectpopularmovies.MainActivity.myFavoriteMovies;
 
 public class MovieActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>{
@@ -63,8 +66,9 @@ public class MovieActivity extends AppCompatActivity implements
             MoviesContract.MovieEntry.MOVIE_RELEASE_DATE,
             MoviesContract.MovieEntry.MOVIE_POSTER_PATH,
             MoviesContract.MovieEntry.MOVIE_BACKDROP_PATH,
-            MoviesContract.MovieEntry.MOVIE_RATING
+            MoviesContract.MovieEntry.MOVIE_IS_FAVORITE
     };
+
     public static final int INDEX_MOVIE_ID = 0;
     public static final int INDEX_MOVIE_TITLE = 1;
     public static final int INDEX_MOVIE_DESCRIPTION = 2;
@@ -74,17 +78,9 @@ public class MovieActivity extends AppCompatActivity implements
     public static final int INDEX_MOVIE_RELEASE_DATE = 6;
     public static final int INDEX_MOVIE_POSTER_PATH = 7;
     public static final int INDEX_MOVIE_BACKDROP_PATH = 8;
-    public static final int INDEX_MOVIE_RATING = 9;
-
-
+    public static final int INDEX_MOVIE_IS_FAVORITE = 9;
     private static final int ID_MOVIE_LOADER = 353;
-
-    private String mMovieSummary;
     private Uri mUri;
-    private Cursor mCursor;
-    private boolean favorite;
-
-
     @Bind(R.id.movie_title)
     TextView mMovieTitle;
     @Bind(R.id.Poster)
@@ -105,15 +101,11 @@ public class MovieActivity extends AppCompatActivity implements
     TextView mVideoErrorDisplay;
     @Bind(R.id.favorite_movies_button)
     Button mFavoriteMovieButton;
-
-
+    @Bind(R.id.Top_Movie_Detail_Layout)
+    LinearLayout topLayout;
     Context mContext;
-
-
-
     private ReviewAdapter mReviewAdapter;
     private VideoAdapter mVideoAdapter;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,9 +113,6 @@ public class MovieActivity extends AppCompatActivity implements
         ButterKnife.bind(this);
         setReview();
         setVideos();
-
-
-
 
         mUri = getIntent().getData();
         mContext = this;
@@ -148,8 +137,6 @@ public class MovieActivity extends AppCompatActivity implements
         mVideoList.setAdapter(mVideoAdapter);
 
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -182,80 +169,65 @@ public class MovieActivity extends AppCompatActivity implements
             Log.e(TAG, "Cursror has not valid data");
         }
         if (data.getCount() != 0) {
-            mCursor = data;
             final String id = data.getString(INDEX_MOVIE_ID);
             final String title = data.getString(INDEX_MOVIE_TITLE);
-            loadReviews(id);
-            loadVideos(id);
-
-            mMovieTitle.setText(title);
-
             final String description = data.getString(INDEX_MOVIE_DESCRIPTION);
-            mMovieDescription.setText(description);
-
             final String popularity = data.getString(INDEX_MOVIE_POPULARITY);
-
             final String vote_count = data.getString(INDEX_MOVIE_VOTE_COUNT);
-
             final String vote_average = data.getString(INDEX_MOVIE_VOTE_AVERAGE);
-
             final String release_date = data.getString(INDEX_MOVIE_RELEASE_DATE);
-            mReleaseDateDisplay.setText(release_date.substring(0, 4));
-
-            final String movie_favored = "FALSE";
-            Log.i(TAG,movie_favored);
-
             final String poster_path = data.getString(INDEX_MOVIE_POSTER_PATH);
-            Picasso.with(this).load("https://image.tmdb.org/t/p/w500" + poster_path).into(mMoviePoster);
-
             final String backdrop_path = data.getString(INDEX_MOVIE_BACKDROP_PATH);
+            final int isFavorite = data.getInt(INDEX_MOVIE_IS_FAVORITE);
+            PopulateMovieDetails(id,title,description,popularity,release_date,poster_path,vote_count,vote_average,isFavorite);
 
-            final String rating = data.getString(INDEX_MOVIE_RATING);
-            mRatingDisplay.setText("Popularity" + "\n(" + vote_count + " ) " + vote_average + "\n" + rating);
-
-            mMovieSummary = String.format("%s - %s - %s  - %s - %s - %s - %s - %s -%s",
-                    title, description, popularity, vote_count, vote_average, movie_favored, poster_path, backdrop_path, rating);
-            updateFavoriteButton(cursorToMovie(mCursor));
-            mFavoriteMovieButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        updateFavoriteButton(cursorToMovie(mCursor));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            });
         }
     }
-    public Movie cursorToMovie(Cursor cursor){
-        Movie movie = new Movie();
-        movie.setId(Long.parseLong(cursor.getString(0)));
-        movie.setmTitle(cursor.getString(1));
-        movie.setmDesc(cursor.getString(2));
-        movie.setmDesc(cursor.getString(3));
-        movie.setmPopularity(cursor.getString(4));
-        movie.setmVoteCount(cursor.getString(5));
-        movie.setmVoteAverage(cursor.getString(6));
-        movie.setmDate(cursor.getString(7));
-        movie.setmImage(cursor.getString(8));
-        movie.setmBackdropPath(cursor.getString(9));
-        return movie;
-    };
 
-    public void updateFavoriteButton(Movie Movie){
-        if(CheckFavoriteMovie(mContext,Movie)){
-            Log.i(TAG,"IT HAS THE KEY");
-            RemoveFromFavorite(mContext,Movie);
+    public void PopulateMovieDetails(final String id,String title,String description,String popularity,String release_date,String poster_path,String vote_count,String vote_average,final int isFavorites){
+        mMovieTitle.setText(title);
+        mMovieDescription.setText(description);
+        mReleaseDateDisplay.setText(release_date.substring(0, 4));
+        Picasso.with(this)
+                .load("https://image.tmdb.org/t/p/w500" + poster_path)
+                .into(mMoviePoster);
+//        Glide.with(this)
+//                .load("https://image.tmdb.org/t/p/w500" + poster_path)
+//                .into(mMoviePoster);
+        mRatingDisplay.setText("Popularity" + "\n(" + vote_count + " ) " + vote_average + "\n" + popularity);
+        UpdateFavorite(isFavorites);
+        loadReviews(id);
+        loadVideos(id);
+        mFavoriteMovieButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    FavoriteMovie(id,isFavorites);
+                    UpdateFavorite(isFavorites);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+    }
+
+    public void UpdateFavorite(int isFavorite){
+          if(isFavorite == 1){
             mFavoriteMovieButton.setBackground(getResources().getDrawable(R.drawable.favorite_movie));
         }else{
-            Log.i(TAG,"IT HAS NO KEY");
-            AddToFavorite(mContext,Movie);
-            mFavoriteMovieButton.setBackground(getResources().getDrawable(R.drawable.no_favorite_movie));
+            mFavoriteMovieButton.setBackground(getResources().getDrawable(R.drawable. no_favorite_movie));
         }
+
     }
 
+    public void FavoriteMovie(String id,int value){
+        if(value == 0 ){
+            updateMovie(id,"1");
+        }else{
+            updateMovie(id,"0");
+        }
+    }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
@@ -345,11 +317,22 @@ public class MovieActivity extends AppCompatActivity implements
         }
     }
 
-    public static void AddToFavorites(String id,boolean value){
-        favorites.put(id,value);
+    public void updateMovie(String id,String value){
+        ContentValues mUpdateValues = new ContentValues();
+        String mSelectionClause = MoviesContract.MovieEntry.MOVIE_ID + "= ?";
+        String[] mSelectionArgs = {id};
+        int mRowsUpdated = 0;
+        mUpdateValues.put(MoviesContract.MovieEntry.MOVIE_IS_FAVORITE,Integer.parseInt(value));
+        mRowsUpdated = getContentResolver().update(
+                MoviesContract.MovieEntry.buildMovieUriWithId(Long.parseLong(id)),  // The user dictionary content URI
+                mUpdateValues,                                                      // The columns to update
+                mSelectionClause,                                                   // The column to select on
+                mSelectionArgs                                                      // The value to compare to
+        );
+        if(mRowsUpdated>0){
+            Log.i(TAG,"Updated Complete");
+        }else{
+            return;
+        }
     }
-
-
-
-
 }

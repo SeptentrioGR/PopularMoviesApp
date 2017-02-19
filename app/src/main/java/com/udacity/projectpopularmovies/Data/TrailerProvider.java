@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public class TrailerProvider {
     public static ArrayList<Video> mTrailers;
-    Context mContext;
+    private Context mContext;
 
     public TrailerProvider(Context context, String id) {
         mContext = context;
